@@ -1,0 +1,13 @@
+[package]
+name = "proots"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+structopt = "0.3.26"
+libipld = "0.16.0"
+ipfs-api-backend-actix = "0.7.0"
+actix-rt = "2.8.0"
+futures = "0.3.26"
