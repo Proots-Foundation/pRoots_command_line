@@ -21,25 +21,32 @@ use libipld::{ipld, json, Cid, Ipld};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Sequence {
+    // The address of the sequence in IPFS
     address: String,
+    // The actual DNA sequence
     sequence: String,
+    // A vector of annotations for the sequence
     annotations: Vec<Annotation>,
 }
 
 impl Sequence {
+    // Create a new instance of `Sequence`
     pub fn new(dag: &Ipld) -> Self {
         match dag {
             Ipld::Map(dag) => Sequence {
+                // Extract the address from the IPLD object
                 address: match dag.get("Addr").unwrap() {
                     Ipld::String(s) => s,
                     _ => panic!("Not a String"),
                 }
                 .clone(),
+                // Extract the DNA sequence from the IPLD object
                 sequence: match dag.get("Seq").unwrap() {
                     Ipld::String(s) => s,
                     _ => panic!("Not a String"),
                 }
                 .clone(),
+                // Extract the annotations from the IPLD object
                 annotations: match dag.get("Annots").unwrap() {
                     Ipld::List(l) => {
                         let mut vec = Vec::new();
