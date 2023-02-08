@@ -1,6 +1,7 @@
+mod ipfs_portal;
 mod proots;
 
-use ipfs_api_backend_actix::{IpfsApi, IpfsClient};
+use libipld::multibase::Base;
 use libipld::multihash::{Code, MultihashDigest};
 use libipld::prelude::*;
 use libipld::{ipld, json, Cid, Ipld};
@@ -24,8 +25,7 @@ struct Opt {
 }
 
 // TODO: need to clear up the main section and implement the pRoots command-line API
-#[actix_rt::main]
-async fn main() {
+fn main() {
     let opt = Opt::from_args();
     println!("{:?}", opt);
     let ipld_map = ipld!({"bool": opt.flag, "string": opt.str_input});
@@ -42,6 +42,22 @@ async fn main() {
         std::str::from_utf8(&ipld_map_encoded).unwrap()
     );
 
-    let sq = proots::Sequence::new(&ipld_map);
-    println!("{:?}", sq);
+    // let sq = proots::Sequence::from(&ipld_map);
+    // println!("{:?}", sq);
+
+    // test for IpfsApi/IpfsClient
+    let fut = ipfs_portal::IpfsPortal::upload(ipld_map_encoded);
+    let sys = actix_rt::System::new();
+    let res: Ipld = sys.block_on(fut);
+    println!("{:?}", res);
+    match res {
+        Ipld::Link(s) => {
+            println!("{}", s);
+            let s = s.to_string_of_base(Base::Base64).unwrap();
+            let fut = ipfs_portal::IpfsPortal::get(s);
+            let res2 = sys.block_on(fut);
+            println!("{:?}", res2);
+        }
+        _ => (),
+    }
 }
